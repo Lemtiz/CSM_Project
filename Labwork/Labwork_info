@@ -1,0 +1,116 @@
+========================================================================
+             DOCUMENTAZIONE DEL CODICE E ARCHITETTURA C++
+========================================================================
+
+1. ANALISI DEI MODULI E DEI FILE
+------------------------------------------------------------------------
+
+[1] Modulo Didattico di Base: customtype.hpp / customtype.cpp
+- Contenuto:
+  - "customtype.hpp" definisce la classe base 'customtype' (con membro privato 'a', protetto 'b', pubblico 'c', metodi setter/getter e la funzione 'byref') e la classe derivata 'derivedtype' (con sovraccarico di 'show()')[cite: 2].
+  - "customtype.cpp" contiene la funzione 'main()' per istanziare ed eseguire i metodi delle due classi[cite: 1].
+- Funzione: Illustra la sintassi base della Programmazione Orientata agli Oggetti (OOP): incapsulamento (private/protected/public), ereditarietà, passaggio per riferimento e overloading di metodi[cite: 1, 2].
+- Come usarlo:
+  Compilazione ed esecuzione come test autonomo[cite: 1]:
+  $ g++ -std=c++17 customtype.cpp -o customtype
+  $ ./customtype
+
+[2] Modulo Vettoriale: pvector.hpp / pvector.cpp
+- Contenuto:
+  - "pvector.hpp" definisce la classe template 'pvector<typename ntype, int NT>' per la gestione di vettori a NT dimensioni[cite: 10].
+  - Implementa costruttori con std::initializer_list, overloading degli operatori aritmetici (+, -, *, /, +=, -=, *=, /=, ==, ^), accesso tramite operator() e output tramite operator<<[cite: 10].
+  - Contiene funzioni amiche (friend) come rint, mulcw, divcw e metodi stocastici (random, random_orient)[cite: 10].
+  - "pvector.cpp" contiene un 'main()' per il test dell'algebra vettoriale[cite: 9].
+- Funzione: Fornisce l'astrazione algebrica necessaria per rappresentare posizioni, velocità e forze tridimensionali delle particelle[cite: 10].
+- Come usarlo:
+  Includere "pvector.hpp" negli altri file di simulazione[cite: 5, 6, 8, 10].
+  Compilazione del test autonomo[cite: 9]:
+  $ g++ -std=c++17 pvector.cpp -o pvector_test
+  $ ./pvector_test
+
+[3] Modulo Matriciale: pmatrix.hpp / pmatrix.cpp
+- Contenuto:
+  - "pmatrix.hpp" definisce la classe template 'pmatrixq<typename ntype, int NT>' per matrici quadrate NT x NT[cite: 8].
+  - Implementa costruttori con std::initializer_list (1D e 2D), accesso operator()(i, j), operatori algebrici (+, -, *, /) per matrici, scalari e vettori, e il metodo transpose()[cite: 8].
+  - "pmatrix.cpp" contiene la funzione 'main()' per validare l'algebra matriciale[cite: 7].
+- Funzione: Gestisce le trasformazioni tensoriali e le operazioni matriciali utili ai calcoli di proprietà strutturali o termodinamiche[cite: 7, 8].
+- Come usarlo:
+  Includere "pmatrix.hpp" dove richiesto[cite: 7, 8].
+  Compilazione del test autonomo[cite: 7]:
+  $ g++ -std=c++17 pmatrix.cpp -o pmatrix_test
+  $ ./pmatrix_test
+
+[4] Modulo Particelle e Potenziali: particle.hpp
+- Contenuto:
+  - Classe base 'particle<typename ntype>': memorizza lo stato cinematico della particella (posizione 'r', posizione precedente 'rold', velocità 'v', forza 'f', massa 'm', parametri sigma, epsilon, rc) e fornisce i metodi tra_move(), store() e restore()[cite: 6].
+  - Classe derivata 'particleLJ<typename ntype>': implementa il potenziale interatomico di Lennard-Jones, calcolando energia (vij), forze e viriale (fij) con l'applicazione della Minimum Image Convention (MIC)[cite: 6].
+  - Classe derivata 'particleSS<typename ntype>': implementa il potenziale per sfere soffici (Soft Sphere, meramente repulsivo)[cite: 6].
+- Funzione: Definisce le entità fisiche della simulazione e ne calcola le interazioni a breve raggio[cite: 6].
+- Come usarlo:
+  Viene passata come parametro di tipo ai simulatori Monte Carlo o Dinamica Molecolare (es. particleLJ<double>)[cite: 3, 4, 6].
+
+[5] Modulo Parametri di Simulazione: params.hpp
+- Contenuto:
+  - Definisce la classe 'simpars<typename ntype>' contenente le impostazioni del sistema: numero di particelle (nx, ny, nz), dimensioni del box (L), temperatura (T), pressione (P), densità (rho), passo d'integrazione (dt), ampiezza mosse MC (deltra, delv) e contatori degli step di simulazione[cite: 5].
+- Funzione: Centralizza la configurazione e le condizioni termodinamiche del sistema simulato[cite: 5].
+- Come usarlo:
+  Incluso ed istanziato direttamente dai moduli della simulazione[cite: 3, 4, 5].
+
+[6] Moduli di Simulazione Principali: mcsim.cpp / mdsim.cpp
+- Contenuto:
+  - "mcsim.cpp": Punto d'ingresso per la simulazione Monte Carlo (MC) basata sul modello mcsim<double, particleLJ<double>>[cite: 3].
+  - "mdsim.cpp": Punto d'ingresso per la simulazione di Dinamica Molecolare (MD) basata su mdsim<double, particleLJ<double>>[cite: 4].
+- Funzione:
+  - "mcsim.cpp" inizializza il generatore casuale, genera la configurazione iniziale ed esegue il campionamento stocastico dell'insieme statistico[cite: 3].
+  - "mdsim.cpp" inizializza le particelle e integra le equazioni del moto deterministiche[cite: 4].
+- Come usarlo:
+  Costituiscono i due file eseguibili principali del progetto.
+  Compilazione[cite: 3, 4]:
+  $ g++ -std=c++17 mcsim.cpp -o mcsim
+  $ g++ -std=c++17 mdsim.cpp -o mdsim
+
+
+========================================================================
+2. RIEPILOGO DELLE CARATTERISTICHE DI C++ UTILIZZATE
+========================================================================
+
+1. Incapsulamento e Specificatori di Accesso (private, protected, public)
+   - 'private': Protegge lo stato interno degli oggetti da modifiche arbitrarie esterne (es. l'array di componenti vettoriali 'v' in pvector[cite: 10] o la matrice 'm' in pmatrixq[cite: 8]).
+   - 'protected': Consente l'accesso ai membri solo alla classe stessa e alle sue classi derivate (es. 'b' in customtype[cite: 2], 'vcut' in particle[cite: 6]).
+   - 'public': Interfaccia accessibile dall'esterno (costruttori, metodi di calcolo e operatori)[cite: 2, 6, 8, 10].
+
+2. Ereditarietà (Inheritance)
+   - Utilizzata per estendere ed estrapolare funzionalità comuni.
+   - 'derivedtype' eredita publicamente da 'customtype'[cite: 2].
+   - 'particleLJ' e 'particleSS' ereditano da 'particle', riutilizzando la gestione dello stato cinematico e definendo in modo specifico la funzione di potenziale interatomico[cite: 6].
+
+3. Programmazione Generica e Template (Class Templates)
+   - Uso di 'template <typename ntype, int NT>' per pvector e pmatrixq[cite: 8, 10] e 'template <typename ntype>' per particle e simpars[cite: 5, 6].
+   - Permette la massima flessibilità: la precisione numerica (float, double) e la dimensione spaziale (NT) sono parametrizzate a tempo di compilazione senza duplicazione di codice[cite: 8, 9, 10].
+
+4. Sovraccarico degli Operatori e delle Funzioni (Overloading)
+   - Overloading di funzioni: Metodi con lo stesso nome ma diversa firma (es. 'show()' in derivedtype[cite: 2]).
+   - Overloading degli operatori:
+     * Operatori aritmetici (+, -, *, /, +=, -=, *=, /=) per una sintassi matematica naturale con vettori e matrici[cite: 7, 8, 9, 10].
+     * Accesso agli elementi tramite operator() per vettori V(i) e matrici M(i,j)[cite: 7, 8, 9, 10].
+     * Prodotto vettoriale tramite operator^ per vettori 3D[cite: 10].
+     * Operatore di uguaglianza ==[cite: 8, 10].
+
+5. Passaggio per Riferimento, Const Correctness e Puntatore 'this'
+   - Riferimenti (&): Evitano copie onerose di oggetti in memoria (es. const pmatrixq &M2) e consentono la modifica in loco di argomenti (es. int& a)[cite: 2, 8].
+   - Qualificatore 'const': Garantisce la const-correctness; i metodi marcati const (es. norm() const, operator()(...) const) assicurano di non modificare lo stato dell'oggetto chiamante[cite: 8, 10].
+   - Puntatore 'this': Utilizzato per accedere in modo esplicito ai membri dell'istanza corrente (es. (*this).b[cite: 2]) o restituire un riferimento all'oggetto chiamante nei metodi di assegnamento[cite: 10].
+
+6. Funzioni e Operatori Amici (Friend Functions)
+   - Consentono a funzioni o operatori esterni alla classe di accedere ai suoi membri privati e protetti.
+   - Utilizzato per il sovraccarico dell'operatore di output std::ostream& operator<< (stampa con std::cout)[cite: 8, 10].
+   - Utilizzato per rendere la moltiplicazione scalare-vettore commutativa (s * V)[cite: 8, 10] e per funzioni ausiliarie come rint(), mulcw() e divcw()[cite: 10].
+
+7. Inizializzazione tramite std::initializer_list
+   - Permette l'inizializzazione sintetica degli oggetti mediante parentesi graffe:
+     * Vettori: pvector<double,3> P1 = {1.3, 2.7, 3.4};[cite: 9, 10]
+     * Matrici: pmatrixq<double,3> C = {{2,3,2},{3,4,5},{8,0,1}};[cite: 7, 8]
+
+8. Risoluzione dei Nomi nei Template (Direttiva 'using')
+   - Nelle classi derivate template (es. particleLJ<ntype>), la direttiva 'using pt::r, pt::epsilon, ...' esplicita la visibilità dei membri ereditaria dalla classe base durante la fase di compilazione[cite: 6].
+========================================================================

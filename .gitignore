@@ -1,0 +1,6 @@
+benchmark.csv
+benchmark_plots.png
+benchmark_plots.pdf
+*.obj
+*.exe
+*.pdb

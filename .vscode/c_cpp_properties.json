@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "name": "Windows-MSVC",
+      "compilerPath": "cl.exe",
+      "intelliSenseMode": "windows-msvc-x64",
+      "cppStandard": "c++17",
+      "compilerArgs": [
+        "/std:c++17"
+      ],
+      "cStandard": "c17",
+      "includePath": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/Labwork"
+      ]
+    }
+  ],
+  "version": 4
+}
