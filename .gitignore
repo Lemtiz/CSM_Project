@@ -4,3 +4,5 @@ benchmark_plots.pdf
 *.obj
 *.exe
 *.pdb
+draw_system_scheme.py
+final_results/
